@@ -1,6 +1,8 @@
 package com.example.shoppinglist.presentation
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -27,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         setUpRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
-            shopListAdapter.shopList = it
+            shopListAdapter.submitList(it)
         }
 
     }
@@ -59,6 +61,8 @@ class MainActivity : AppCompatActivity() {
     private fun setupLongClickListener() {
         shopListAdapter.onShopItemLongClickListener = { shopItem ->
             viewModel.changeEnableState(shopItem)
+            Log.d("TAG", shopItem.toString())
+            Toast.makeText(this, shopItem.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -74,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = shopListAdapter.shopList[viewHolder.adapterPosition]
+                val item = shopListAdapter.currentList[viewHolder.adapterPosition]
                 viewModel.deleteShopItem(item)
             }
         }

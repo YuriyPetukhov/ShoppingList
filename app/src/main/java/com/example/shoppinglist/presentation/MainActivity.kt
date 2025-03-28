@@ -1,6 +1,7 @@
 package com.example.shoppinglist.presentation
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -10,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.shoppinglist.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var shopListAdapter: ShopListAdapter
@@ -19,7 +20,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        shopItemContainer = findViewById(R.id.shop_item_container) //создаем контейнер для Fragment для горизонтального режима
+        shopItemContainer =
+            findViewById(R.id.shop_item_container) //создаем контейнер для Fragment для горизонтального режима
         setupRecyclerView()
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
@@ -35,6 +37,16 @@ class MainActivity : AppCompatActivity() {
                 launchFragment(fragment)
             }
         }
+    }
+
+    override fun onEditingFinished() {
+        Toast.makeText(this, "Success", Toast.LENGTH_LONG).show()
+        supportFragmentManager.popBackStack()
+    }
+
+    //Проверяет в какожм режиме находится экран. Если null - то в вертикальном, т.к контейнер создастся только если будет в горизонтальном режиме(сможет найти по findviewbyId))
+    private fun isOnePaneMod(): Boolean {
+        return shopItemContainer == null
     }
 
     private fun setupRecyclerView() {
@@ -54,16 +66,19 @@ class MainActivity : AppCompatActivity() {
         setupLongClickListener()
         setupClickListener()
         setupSwipeListener(rvShopList)
+
+
     }
-//Проверяет в какожм режиме находится экран. Если null - то в вертикальном, т.к контейнер создастся только если будет в горизонтальном режиме(сможет найти по findviewbyId))
-    private fun isOnePaneMod(): Boolean {
-        return shopItemContainer == null
-    }
-//Аналог launchRightMode из ShopItemFragment.  Добавит Fragment в контейнер.
+
+
+    //Аналог launchRightMode из ShopItemFragment.  Добавит Fragment в контейнер.
     private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.popBackStack() //убирает из стека фрагмент, чтобы они не копились (см. ниже)
         supportFragmentManager.beginTransaction()
-            .replace(R.id.shop_item_container, fragment) //Проверка на пересоздание активити. Если null - то не была пересоздана, то есть надо создать. Лечит Многократный вызов OnCreate при перевороте экрана (а следовательно и пересоздание фрагементов)
+            .replace(
+                R.id.shop_item_container,
+                fragment
+            ) //Проверка на пересоздание активити. Если null - то не была пересоздана, то есть надо создать. Лечит Многократный вызов OnCreate при перевороте экрана (а следовательно и пересоздание фрагементов)
             .addToBackStack(null) //додавляет фрагмент в стек, чтобы можно было вернуться без закрытие приложения. Чтобы они не копились, при создании нового фрагмента, старый из стека удаляется (см. выше))
             .commit()
     }

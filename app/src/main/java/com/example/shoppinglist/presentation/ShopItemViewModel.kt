@@ -16,11 +16,6 @@ import com.example.shoppinglist.domain.ShopItem
 import kotlinx.coroutines.launch
 
 class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = ShopListRepositoryImpl(application)
-
-
-class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = ShopListRepositoryImpl(application)
 
     private val addShopListUseCase = AddShopItemUseCase(repository)
